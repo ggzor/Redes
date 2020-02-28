@@ -1,6 +1,6 @@
 package provide argsparse 0.1
 
-namespace eval ::argsparse {
+namespace eval ::Args {
     # Given an args configuration and a parameter list sets the variables
     # to their parameter values or defaults in the current scope.
     proc parse { parameters config } {
