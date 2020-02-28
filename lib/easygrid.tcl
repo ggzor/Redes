@@ -1,6 +1,6 @@
 package provide easygrid 0.1
 
-namespace eval Grid {
+namespace eval ::Grid {
     # Sets up the rows with the specified weights
     proc rows {elem rows} {
         for {set i 0} {$i < [llength $rows]} {incr i} {
