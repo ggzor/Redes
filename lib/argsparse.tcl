@@ -12,7 +12,7 @@ namespace eval ::Args {
         foreach var [list $config $parameters] {
             while {[llength $var] > 0} {
                 # Search for options
-                if [regexp {^\-(\w+)\s+(\w+)} $var _ option value] {
+                if [regexp {^\-(\S+)\s+(\S+)} $var _ option value] {
                     uplevel set $option $value
                     set var [lrange $var 2 end]
                 } else {
