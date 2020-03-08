@@ -11,15 +11,18 @@ namespace eval ::Args {
         set i 0
         foreach var [list $config $parameters] {
             while {[llength $var] > 0} {
+                set first  [lindex $var 0]
+                set value  [lindex $var 1]
+
                 # Search for options
-                if [regexp {^\-(\S+)\s+(\S+)} $var _ option value] {
-                    uplevel set $option $value
+                if [regexp {^\-(\S+)} $first _ option] {
+                    uplevel set $option "\{$value\}"
                     set var [lrange $var 2 end]
                 } else {
                     # Search for positional arguments
                     switch $i {
-                        0 { lappend positional [lindex $var 0] }
-                        1 { lappend positionalValues [lindex $var 0] }
+                        0 { lappend positional       $first }
+                        1 { lappend positionalValues $first }
                     }
                     
                     set var [lrange $var 1 end]
