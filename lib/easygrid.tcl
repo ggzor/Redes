@@ -107,18 +107,11 @@ namespace eval ::Grid {
     }
 
     # Clears grid configuration and removes elements
-    # If you don't use all rows and columns, you have to specify the
-    # maximum column and row manually
-    proc clear { parent {maxRow 0} {maxColumn 0} } {
+    proc clear { parent } {
+        grid rowconfigure    $parent all -weight 0
+        grid columnconfigure $parent all -weight 0
+
         foreach elem [grid slaves $parent] {
-            if [regexp {\-row +(\d+)} [grid info $elem] _ row] {
-                set maxRow [expr "max($maxColumn, $row)"]
-            }
-
-            if [regexp {\-column +(\d+)} [grid info $elem] _ col] {
-                set maxColumn [expr "max($maxColumn, $col)"]
-            }
-
             grid remove $elem
         }
     }
