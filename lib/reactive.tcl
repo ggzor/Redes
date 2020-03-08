@@ -158,19 +158,21 @@ namespace eval ::Reactive {
 
         # Chack if there are associated callbacks
         if [info exists $callbacks] {
-            dict for {_ cb} [dict get [set $callbacks] $path] {
-                # If has transform argument
-                if {[lindex $cb 0] eq "transform" } {
-                    set transform [lindex $cb 1]
-                    set deps [lindex $cb 3]
-                    set cb [lindex $cb 2]
-                } else {
-                    set transform id
-                    set deps [lindex $cb 2]
-                    set cb [lindex $cb 1]
+            if [dict exists [set $callbacks] $path] {
+                dict for {_ cb} [dict get [set $callbacks] $path] {
+                    # If has transform argument
+                    if {[lindex $cb 0] eq "transform" } {
+                        set transform [lindex $cb 1]
+                        set deps [lindex $cb 3]
+                        set cb [lindex $cb 2]
+                    } else {
+                        set transform id
+                        set deps [lindex $cb 2]
+                        set cb [lindex $cb 1]
+                    }
+                    
+                    Reactive::invokeCallback $object $deps $oldValue $newValue $cb $transform
                 }
-                
-                Reactive::invokeCallback $object $deps $oldValue $newValue $cb $transform
             }
         }
     }
