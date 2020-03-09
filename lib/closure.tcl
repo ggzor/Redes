@@ -23,7 +23,7 @@ namespace eval ::Closure {
     proc of {vars body} {
         set values [uplevel Closure::capture "\"$vars\""]
 
-        return "closure {$values} $body"
+        return "closure {$values} {$body}"
     }
 
     # Run a closure if it is a closure, otherwise eval as a normal proc
@@ -37,7 +37,7 @@ namespace eval ::Closure {
 
         if [string match "closure*" $closure] {
             set values  [lindex $closure 1]
-            set closure [lrange $closure 2 end]
+            set closure [lindex $closure 2]
 
             Closure::inject $values
         }
