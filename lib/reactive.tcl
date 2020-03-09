@@ -175,7 +175,7 @@ namespace eval ::Reactive {
     # And the shorthand it and old variables
     proc invokeCallback { object deps oldValue newValue cb {transform id} } {
         # Apply supplied transform if required
-        if [expr "![string equal $transform "id"]"] {
+        if {![string equal $transform "id"]} {
             set it $oldValue
             set oldValue [expr $transform]
 
