@@ -10,4 +10,5 @@
 
 package ifneeded Reactive 0.1 [list source [file join $dir reactive.tcl]]
 package ifneeded argsparse 0.1 [list source [file join $dir argsparse.tcl]]
+package ifneeded closure 0.1 [list source [file join $dir closure.tcl]]
 package ifneeded easygrid 0.1 [list source [file join $dir easygrid.tcl]]
