@@ -6,7 +6,7 @@ namespace eval ::Closure {
         set values [dict create]
 
         foreach var $vars {
-            dict set values $var [uplevel set $var]
+            dict set values $var "{[uplevel set $var]}"
         }
 
         set values
@@ -35,16 +35,14 @@ namespace eval ::Closure {
 
         set injectedVars [uplevel Closure::capture "\"$vars\""]
 
-        if {[lindex $closure 0] eq "closure"} {
-            set values [lindex $closure 1]
-            set body   [lrange $closure 2 end]
+        if [string match "closure*" $closure] {
+            set values  [lindex $closure 1]
+            set closure [lrange $closure 2 end]
 
-            Closure::inject $injectedVars
             Closure::inject $values
-
-            eval $body
-        } else {
-            eval $closure
         }
+
+        Closure::inject $injectedVars
+        eval $closure
     }
 }
