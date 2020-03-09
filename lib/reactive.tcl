@@ -1,28 +1,20 @@
 package provide Reactive 0.1
 
 package require closure
+package require functional
 
 namespace eval ::Reactive {
     # Prepares a namespace object to use reactive properties
     proc inject { object } {
         # Attach reactive shorthand utility methods that forward to reactive methods
-        proc "::${object}::modify" { path transform } \
-            "Reactive::modify $object \$path \$transform"
+        set forward {modify listen listenSetup when whenSetup}
 
-        proc "::${object}::listen" { path {transform id} {callback none} } \
-            "Reactive::listen $object \$path \$transform \$callback"
-    
-        proc "::${object}::listenSetup" { path {transform id} {callback none} } \
-            "Reactive::listenSetup $object \$path \$transform \$callback"
+        foreach method $forward {
+            Functional::partial "::${object}::${method}" \
+                                "Reactive::${method}" $object
+        }
 
-        proc "::${object}::when" { path trueTransform else falseTransform body } \
-            "Reactive::when $object \$path \$trueTransform else \$falseTransform \$body"
-        
-        proc "::${object}::whenSetup" { path trueTransform else falseTransform body } \
-            "Reactive::whenSetup $object \$path \$trueTransform else \$falseTransform \$body"
-
-        # Declare required variables in target namespace object
-        
+        # Declare required variables in target namespace object        
         # Callback register
         variable "::${object}::callbacks"
         # Computed properties register
