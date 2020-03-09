@@ -1,5 +1,7 @@
 package provide Reactive 0.1
 
+package require closure
+
 namespace eval ::Reactive {
     # Prepares a namespace object to use reactive properties
     proc inject { object } {
@@ -92,15 +94,15 @@ namespace eval ::Reactive {
             error "else parameter has to be else"
         }
 
-        Reactive::listen $object $path "
-            if \$it {
-                set it \[expr \"$trueTransform\"\]
-                $body
+        Reactive::listen $object $path [Closure::of {trueTransform falseTransform body} {
+            if $it {
+                set it [expr "$trueTransform"]
+                eval $body
             } else {
-                set it \[expr \"$falseTransform\"\]
-                $body
+                set it [expr "$falseTransform"]
+                eval $body
             }
-        "
+        }]
     }
 
     # The analogous to Reactive::listenSetup but for Reactive::when
@@ -128,12 +130,12 @@ namespace eval ::Reactive {
         # Unbind all deps
         foreach var $deps { unset $var }
 
-        Reactive::listen $object $deps "
-            set oldValue \[Reactive::getPath $object $path\]
-            Reactive::setPath $object $path \[expr \"$body\"\]
-            set newValue \[Reactive::getPath $object $path\]
-            Reactive::notify $object $path \$oldValue \$newValue
-        "
+        Reactive::listen $object $deps [Closure::of {object path body} {
+            set oldValue [Reactive::getPath $object $path]
+            Reactive::setPath $object $path [expr "$body"]
+            set newValue [Reactive::getPath $object $path]
+            Reactive::notify $object $path $oldValue $newValue
+        }]
     }
 
     # Utilities to manage path names
@@ -195,6 +197,7 @@ namespace eval ::Reactive {
         # Invoke with shorthand vars
         set old $oldValue
         set it $newValue
-        eval $cb
+
+        Closure::run [concat $deps old it] $cb
     }
 }
