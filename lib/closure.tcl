@@ -6,7 +6,7 @@ namespace eval ::Closure {
         set values [dict create]
 
         foreach var $vars {
-            dict set values $var "{[uplevel set $var]}"
+            dict set values $var [uplevel set $var]
         }
 
         set values
@@ -15,7 +15,8 @@ namespace eval ::Closure {
     # Sets the given variables in the var-value dict in the current context
     proc inject vars {
         dict for {var value} $vars {
-            uplevel set $var $value
+            upvar $var target
+            set target $value
         }
     }
 
