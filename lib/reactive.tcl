@@ -23,6 +23,11 @@ namespace eval ::Reactive {
         variable "::${object}::callbacksCount" 0
     }
 
+    # Shorthand for modify to set constants
+    proc assign { object path value } {
+        Reactive::modify $object $path "{$value}"
+    }
+
     # Sets the value to the result of evaluating transform with the current
     # value as context (it)
     proc modify { object path transform } {
