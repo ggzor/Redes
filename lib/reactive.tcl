@@ -7,12 +7,15 @@ namespace eval ::Reactive {
     # Prepares a namespace object to use reactive properties
     proc inject { object } {
         # Attach reactive shorthand utility methods that forward to reactive methods
-        set forward {modify listen listenSetup when whenSetup}
+        set forward {assign listen listenSetup when whenSetup}
 
         foreach method $forward {
             Functional::partial "::${object}::${method}" \
                                 "Reactive::${method}" $object
         }
+
+        proc "::${object}::modify" { path transform } \
+            "uplevel Reactive::modify $object \$path \"{\$transform}\""
 
         # Declare required variables in target namespace object        
         # Callback register
@@ -31,8 +34,25 @@ namespace eval ::Reactive {
     # Sets the value to the result of evaluating transform with the current
     # value as context (it)
     proc modify { object path transform } {
+        # Check if there exist an it variable
+        set existsIt [uplevel info exists it]
+        if $existsIt {
+            set oldIt [uplevel set it]
+        }
+
+        # Get new value
         set it [set [Reactive::evalPath $object $path]]
-        set newValue [expr $transform]
+        # Set in uplevel
+        uplevel "set it {$it}"
+        # Apply transform
+        set newValue [uplevel "expr {$transform}"]
+
+        # Restore or cleanup "it"
+        if $existsIt {
+            uplevel "set it {$oldIt}"
+        } else {
+            uplevel unset it
+        }
 
         # If it has the same value, doesn't have to change
         if [string equal $it $newValue] return
