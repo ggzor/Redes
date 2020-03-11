@@ -16,8 +16,8 @@ namespace eval ::Scroller {
         Args::parse $args $Scroller::options
 
         frame $elementPath -background $background
-        Grid::rows {1}
-        Grid::columns {1}
+        Grid::rows $elementPath {1}
+        Grid::columns $elementPath {1}
 
         canvas $elementPath.canvas -relief flat -background $background -borderwidth 4
 
@@ -47,7 +47,8 @@ namespace eval ::Scroller {
     }
 
     proc setContent { elementPath content } {
-        $elementPath create window 0 0 -anchor nw -tags content -window "$elementPath$content"
+        set background [$elementPath cget -background]
+        $elementPath.canvas create window 0 0 -anchor nw -tags content -window "$elementPath$content"
 
         frame $elementPath.coverTop -background $background -height 8
         frame $elementPath.coverLeft -background $background -width 8
