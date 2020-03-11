@@ -34,7 +34,6 @@ namespace eval ::Scroller {
             incr hcontent [expr {8 + [winfo height $child]}]
         }
 
-        puts $hcontent
         set finalHeight [expr {max($hcanvas, $hcontent)}]
 
         $elementPath.canvas itemconfigure content -width $wcanvas -height $finalHeight
@@ -52,6 +51,8 @@ namespace eval ::Scroller {
 
         frame $elementPath.coverTop -background $background -height 8
         frame $elementPath.coverLeft -background $background -width 8
+
+        Grid::place $elementPath {{.coverTop 0 0 "new"} {.coverLeft 0 0 "nsw"}}
 
         bind $elementPath <Configure> "::Scroller::update $elementPath $content"
     }
