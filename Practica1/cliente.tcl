@@ -10,12 +10,15 @@ source ../widgets/CajaMensajes.tcl
 source ../widgets/LineEntry.tcl
 source ../widgets/Scroller.tcl
 
+source echo_client.tcl
+
 namespace eval Modelo {
     # Puede ser inicial, conectado o desconectado
     variable estado inicial
 
     variable host localhost
     variable port 2540
+    variable conexion none
 
     variable mensaje ""
 
@@ -28,27 +31,51 @@ namespace eval Modelo {
     }
 
     proc conectar { } {
-        Modelo::assign estado "conectado"
+        set huboError [catch {
+            set Modelo::conexion [Echo_Client $Modelo::host $Modelo::port]
+            fileevent $Modelo::conexion readable Modelo::recibirMensaje
+            Modelo::assign estado "conectado"
+        }]
     }
 
     proc desconectar { } {
-        Modelo::assign estado "desconectado"
-    }
-
-    proc enviarMensaje { } {
-        if {[llength $Modelo::mensaje] > 0} {
-            set mensaje $Modelo::mensaje
-            Modelo::assign mensaje ""
-
-            if { $Modelo::conectado } {
-                Modelo::modify mensajes {[concat $it "{right {$mensaje}}" "{left {$mensaje}}"]}
-            }
+        if $Modelo::conectado {
+            Modelo::assign estado "desconectado"
+            catch {close $Modelo::conexion}
         }
     }
 
-    proc recibirMensaje { mensaje } {
-        if { $Modelo::conectado } {
-            Modelo::modify mensajes {[concat $it "{left {$mensaje}}"]}
+    proc enviarMensaje { } {
+        set huboError [catch {
+            if {[llength $Modelo::mensaje] > 0} {
+                set mensaje $Modelo::mensaje
+                Modelo::assign mensaje ""
+
+                if { $Modelo::conectado } {
+                    Modelo::modify mensajes {[concat $it "{right {$mensaje}}"]}
+                    puts $Modelo::conexion $mensaje
+                }
+            }
+        }]
+
+        if $huboError {
+            Modelo::desconectar
+        } else {
+        }
+    }
+
+    proc recibirMensaje { } {
+        if $Modelo::conectado {
+            if {[eof $Modelo::conexion] || [catch {gets $Modelo::conexion mensaje}]} {
+                close $Modelo::conexion
+                Modelo::desconectar
+            } else {
+                if {[llength $mensaje] > 0} {
+                    Modelo::modify mensajes {[concat $it "{left {$mensaje}}"]}
+                }
+            }
+        } else {
+            puts "Evento cuando no estaba conectado"
         }
     }
 }
